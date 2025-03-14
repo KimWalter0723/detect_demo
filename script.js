@@ -24,7 +24,7 @@ async function startCamera() {
     console.log("📢 正在加载 YOLO 模型...");
 
     try {
-        session = await ort.InferenceSession.create('/yolo_model.onnx', {
+        session = await ort.InferenceSession.create('/best.onnx', {
             executionProviders: ['wasm']
         });
         console.log("✅ YOLO 模型加载完成！");

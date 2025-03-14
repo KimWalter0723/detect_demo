@@ -5,6 +5,12 @@ document.getElementById("stopDetectionButton").addEventListener("click", stopDet
 let session = null;  
 let isDetecting = false;  
 
+// 强制 ONNX.js 仅使用 WASM 并指定正确路径
+ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";  
+ort.env.wasm.simd = false;  // 禁用 SIMD，兼容 Edge
+ort.env.wasm.numThreads = 1; // 避免多线程问题
+ort.env.logLevel = "verbose";  // 打开调试日志，方便排查问题
+
 async function startCamera() {
     const video = document.getElementById("video");
 
@@ -19,7 +25,7 @@ async function startCamera() {
 
     try {
         session = await ort.InferenceSession.create('/yolo_model.onnx', {
-            executionProviders: ['wasm'] // 兼容性更强，适用于 Edge
+            executionProviders: ['wasm']
         });
         console.log("✅ YOLO 模型加载完成！");
         alert("模型已加载，可以开始检测！");

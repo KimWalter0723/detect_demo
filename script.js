@@ -7,8 +7,7 @@ let isDetecting = false;
 
 async function startCamera() {
     const video = document.getElementById("video");
-    
-    // 获取摄像头权限
+
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
             video.srcObject = stream;
@@ -16,13 +15,20 @@ async function startCamera() {
         })
         .catch(err => console.error("无法访问摄像头", err));
 
-    // 预加载 YOLO ONNX 模型（从根目录加载）
-    session = await ort.InferenceSession.create('/best.onnx', {
-        executionProviders: ['webgl']
-    });
+    console.log("📢 正在加载 YOLO 模型...");
 
-    console.log("YOLO 模型加载完成");
+    try {
+        session = await ort.InferenceSession.create('/yolo_model.onnx', {
+            executionProviders: ['wasm'] // 兼容性更强，适用于 Edge
+        });
+        console.log("✅ YOLO 模型加载完成！");
+        alert("模型已加载，可以开始检测！");
+    } catch (err) {
+        console.error("❌ YOLO 模型加载失败：", err);
+        alert("模型加载失败，请检查控制台错误信息！");
+    }
 }
+
 
 async function startDetection() {
     if (!session) {

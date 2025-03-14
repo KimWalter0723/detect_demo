@@ -7,10 +7,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>实时目标检测</h1>
+    <h1>YOLO 目标检测</h1>
 
-    <button id="startCameraButton">📸 开启摄像头</button>  <!-- 打开摄像头 -->
-    <button id="startDetectionButton" disabled>🎯 开始识别</button>  <!-- 开始识别（默认禁用） -->
+    <button id="startCameraButton">📸 开启摄像头</button>
+    <button id="startDetectionButton" disabled>🎯 开始检测</button>
+    <button id="stopDetectionButton" disabled>🛑 停止检测</button>
 
     <div id="videoContainer">
         <video id="video" width="640" height="480" autoplay></video>
@@ -22,7 +23,7 @@
         <ul id="resultsList"></ul>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web"></script>  <!-- ONNX.js -->
-    <script src="script.js"></script>  <!-- 目标检测逻辑 -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web"></script>  
+    <script src="script.js"></script>  
 </body>
 </html>

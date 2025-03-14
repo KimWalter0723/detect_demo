@@ -1,24 +1,27 @@
 document.getElementById("startCameraButton").addEventListener("click", startCamera);
 document.getElementById("startDetectionButton").addEventListener("click", startDetection);
+document.getElementById("stopDetectionButton").addEventListener("click", stopDetection);
 
-let session = null;  // YOLO 模型
-let isDetecting = false;  // 是否正在检测
+let session = null;  
+let isDetecting = false;  
 
 async function startCamera() {
     const video = document.getElementById("video");
     
-    // 访问摄像头
+    // 获取摄像头权限
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
             video.srcObject = stream;
-            document.getElementById("startDetectionButton").disabled = false; // 启用识别按钮
+            document.getElementById("startDetectionButton").disabled = false; 
         })
         .catch(err => console.error("无法访问摄像头", err));
 
-    // 预加载 YOLO ONNX 模型
-    session = await ort.InferenceSession.create('best.onnx', {
+    // 预加载 YOLO ONNX 模型（从根目录加载）
+    session = await ort.InferenceSession.create('/best.onnx', {
         executionProviders: ['webgl']
     });
+
+    console.log("YOLO 模型加载完成");
 }
 
 async function startDetection() {
@@ -27,12 +30,16 @@ async function startDetection() {
         return;
     }
 
-    isDetecting = !isDetecting;  // 切换识别状态
-    document.getElementById("startDetectionButton").textContent = isDetecting ? "🛑 停止识别" : "🎯 开始识别";
+    isDetecting = true;
+    document.getElementById("startDetectionButton").disabled = true;
+    document.getElementById("stopDetectionButton").disabled = false;
+    detectObjects();
+}
 
-    if (isDetecting) {
-        detectObjects();
-    }
+function stopDetection() {
+    isDetecting = false;
+    document.getElementById("startDetectionButton").disabled = false;
+    document.getElementById("stopDetectionButton").disabled = true;
 }
 
 async function detectObjects() {
@@ -44,21 +51,19 @@ async function detectObjects() {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // 获取图像数据
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const inputTensor = new ort.Tensor('float32', imageData.data, [1, 3, canvas.height, canvas.width]);
 
-    // 运行 YOLO 推理
     const results = await session.run({ 'input': inputTensor });
 
     displayResults(results);
-    requestAnimationFrame(detectObjects); // 继续检测
+    requestAnimationFrame(detectObjects);
 }
 
-// 显示检测结果
+// 显示识别结果
 function displayResults(results) {
     const resultBox = document.getElementById("resultsList");
-    resultBox.innerHTML = "";  // 清空旧结果
+    resultBox.innerHTML = "";  
 
     results.output.forEach(item => {
         const listItem = document.createElement("li");
